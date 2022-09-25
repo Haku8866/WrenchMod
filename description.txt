@@ -1,0 +1,4 @@
+Adds some special tools for mechanics:
+ - Spark Wrench (Activates wires directly, so you don't need switches. Activating a wire ontop of a torch or lamp will not change its state, but the wire will still be tripped.)
+ - Frame Wrench (Changes a tile's frame.)
+ - Light Wrench (Places invisible light sources which become visible when activated with a wire.)

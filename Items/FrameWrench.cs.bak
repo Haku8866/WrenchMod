@@ -1,0 +1,82 @@
+﻿using Microsoft.Xna.Framework;
+using Terraria;
+using Terraria.ID;
+using Terraria.ModLoader;
+
+namespace WrenchMod.Items
+{
+    public class FrameWrench : ModItem
+    {
+        public override void SetStaticDefaults()
+        {
+            Tooltip.SetDefault("Activates components, doesn't interfere with wires!\n(Does not work with gemspark blocks as they're processed differently)");
+        }
+
+        public override void SetDefaults()
+        {
+            item.width = 24;
+            item.height = 28;
+            item.maxStack = 1;
+            item.value = 100;
+            item.rare = 2;
+            item.useStyle = 1;
+            item.autoReuse = true;
+            item.mech = false;
+            item.useTime = 10;
+            item.useAnimation = 10;
+            item.tileBoost = 50;
+        }
+
+        public override bool AltFunctionUse(Player player)
+        {
+            return true;
+        }
+
+        public override bool CanUseItem(Player player)
+        {
+            int x = (int)Main.MouseWorld.X / 16;
+            int y = (int)Main.MouseWorld.Y / 16;
+            Tile[,] tiles = new Tile[5, 5];
+            for (int i = -2; i < 3; i++)
+            {
+                for (int j = -2; j < 3; j++)
+                {
+                    Tile tile = Framing.GetTileSafely(x + i, y + j);
+                    tiles[i + 2, j + 2] = (Tile)tile.Clone();
+                    tile.wire(false);
+                    tile.wire2(false);
+                    tile.wire3(false);
+                    tile.wire4(false);
+                }
+            }
+            Framing.GetTileSafely(x, y).wire(true);
+            Framing.GetTileSafely(x + 1, y).wire(true);
+            if (Framing.GetTileSafely(x + 1, y).type == TileID.WirePipe)
+            {
+                Framing.GetTileSafely(x + 1, y).type = TileID.Dirt;
+            }
+            Wiring.TripWire(x + 1, y, 1, 1);
+            int frameX = Framing.GetTileSafely(x, y).frameX;
+            int frameY = Framing.GetTileSafely(x, y).frameY;
+            for (int i = -2; i < 3; i++)
+            {
+                for (int j = -2; j < 3; j++)
+                {
+                    Main.tile[x + i, y + j] = tiles[i + 2, j + 2];
+                }
+            }
+            Framing.GetTileSafely(x, y).frameX = (short)frameX;
+            Framing.GetTileSafely(x, y).frameY = (short)frameY;
+            return base.CanUseItem(player);
+        }
+        public override void AddRecipes()
+        {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.MulticolorWrench);
+            recipe.AddIngredient(ItemID.Timer1Second);
+            recipe.AddTile(TileID.TinkerersWorkbench);
+            recipe.SetResult(this);
+            recipe.AddRecipe();
+        }
+    }
+}
